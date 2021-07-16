@@ -36,6 +36,8 @@ void resume_all_vcpus(void);
 void pause_all_vcpus(void);
 void cpu_stop_current(void);
 
+void pause_all_vcpus_keep_clock(void);
+
 extern int icount_align_option;
 
 /* Unblock cpu */

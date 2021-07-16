@@ -336,6 +336,7 @@ void vm_state_notify(bool running, RunState state)
 }
 
 static ShutdownCause reset_requested;
+static unsigned reset_hartid;
 static ShutdownCause shutdown_requested;
 static int shutdown_signal;
 static pid_t shutdown_pid;
@@ -391,12 +392,22 @@ static void qemu_kill_report(void)
 static ShutdownCause qemu_reset_requested(void)
 {
     ShutdownCause r = reset_requested;
-
+    if (r == SHUTDOWN_CAUSE_DOMAIN_RESET) return 0;
     if (r && replay_checkpoint(CHECKPOINT_RESET_REQUESTED)) {
         reset_requested = SHUTDOWN_CAUSE_NONE;
         return r;
     }
     return SHUTDOWN_CAUSE_NONE;
+}
+
+static ShutdownCause qemu_domain_reset_requested(void)
+{
+    ShutdownCause r = reset_requested;
+    if(r == SHUTDOWN_CAUSE_DOMAIN_RESET){
+        reset_requested = SHUTDOWN_CAUSE_NONE;
+        return r;
+    }
+    return 0;
 }
 
 static int qemu_suspend_requested(void)
@@ -535,6 +546,22 @@ void qemu_system_reset_request(ShutdownCause reason)
     } else {
         reset_requested = reason;
     }
+    cpu_stop_current();
+    qemu_notify_event();
+}
+
+void qemu_domain_reset_request(ShutdownCause reason, unsigned hart_id)
+{
+    if (reboot_action == REBOOT_ACTION_SHUTDOWN &&
+        reason != SHUTDOWN_CAUSE_SUBSYSTEM_RESET) {
+        shutdown_requested = reason;
+    } else if (!cpus_are_resettable()) {
+        error_report("cpus are not resettable, terminating");
+        shutdown_requested = reason;
+    } else {
+        reset_requested = reason;
+    }
+    reset_hartid = hart_id;
     cpu_stop_current();
     qemu_notify_event();
 }
@@ -697,6 +724,24 @@ static bool main_loop_should_exit(void)
             runstate_set(RUN_STATE_PRELAUNCH);
         }
     }
+
+    if (qemu_domain_reset_requested()){
+        qemu_log_mask(CPU_LOG_OPENSBI, "%s: reset_hart_id =  %d\n", __func__, reset_hartid);
+        CPUState *cpu = qemu_get_cpu(reset_hartid);
+        pause_all_vcpus_keep_clock();
+        cpu_synchronize_all_states();
+        cpu_reset(cpu);
+        // qemu synchronizes the cpu state after a CPU RESET
+        cpu_synchronize_all_post_reset();
+        resume_all_vcpus();
+
+        if (!runstate_check(RUN_STATE_RUNNING) &&
+                !runstate_check(RUN_STATE_INMIGRATE) &&
+                !runstate_check(RUN_STATE_FINISH_MIGRATE)) {
+            runstate_set(RUN_STATE_PRELAUNCH);
+        }
+    }
+
     if (qemu_wakeup_requested()) {
         pause_all_vcpus();
         qemu_system_wakeup();

@@ -539,11 +539,11 @@ static bool all_vcpus_paused(void)
     return true;
 }
 
-void pause_all_vcpus(void)
+static void __pause_all_vcpus(bool disable_clock)
 {
     CPUState *cpu;
-
-    qemu_clock_enable(QEMU_CLOCK_VIRTUAL, false);
+    if(disable_clock)
+        qemu_clock_enable(QEMU_CLOCK_VIRTUAL, false);
     CPU_FOREACH(cpu) {
         if (qemu_cpu_is_self(cpu)) {
             qemu_cpu_stop(cpu, true);
@@ -568,6 +568,14 @@ void pause_all_vcpus(void)
     qemu_mutex_unlock_iothread();
     replay_mutex_lock();
     qemu_mutex_lock_iothread();
+}
+
+void pause_all_vcpus(void){
+    __pause_all_vcpus(true);
+}
+
+void pause_all_vcpus_keep_clock(void){
+    __pause_all_vcpus(false);
 }
 
 void cpu_resume(CPUState *cpu)

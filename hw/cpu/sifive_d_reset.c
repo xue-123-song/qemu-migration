@@ -30,7 +30,7 @@
 #include "hw/cpu/sifive_d_reset.h"
 #include "sysemu/hw_accel.h"
 #include "sysemu/cpus.h"
-
+#include "qapi/qapi-events-run-state.h"
 static uint64_t d_reset_read(void *opaque, hwaddr addr, unsigned int size)
 {
     return 0;
@@ -52,7 +52,6 @@ static void d_reset_write(void *opaque, hwaddr addr,
         system_wide  = true;
     }
     int hartid = addr >> 2;
-    CPUState *cpu = qemu_get_cpu(hartid);
     {
         int status = val64 & 0xffff;
         int code = (val64 >> 16) & 0xffff;
@@ -66,12 +65,8 @@ static void d_reset_write(void *opaque, hwaddr addr,
             if(system_wide){
                 qemu_system_reset_request(SHUTDOWN_CAUSE_GUEST_RESET);
             }else{
-                cpu_synchronize_state(cpu);
-                cpu_reset(cpu);
-                qemu_log_mask(CPU_LOG_OPENSBI, "%s: cpu_reset %d\n", __func__, hartid);
-                // qemu synchronizes the cpu state after a CPU RESET
-                cpu_synchronize_post_reset(cpu);
-                qemu_log_mask(CPU_LOG_OPENSBI, "%s: cpu_synchronize_post_reset %d\n", __func__, hartid);
+                qemu_domain_reset_request(SHUTDOWN_CAUSE_DOMAIN_RESET, hartid);
+                qemu_log_mask(CPU_LOG_OPENSBI, "%s: SHUTDOWN_CAUSE_DOMAIN_RESET %d\n", __func__, hartid);
             }
         }
             return;
