@@ -336,7 +336,7 @@ void vm_state_notify(bool running, RunState state)
 }
 
 static ShutdownCause reset_requested;
-static unsigned reset_hartid;
+static unsigned reset_hart_mask;
 static ShutdownCause shutdown_requested;
 static int shutdown_signal;
 static pid_t shutdown_pid;
@@ -550,7 +550,7 @@ void qemu_system_reset_request(ShutdownCause reason)
     qemu_notify_event();
 }
 
-void qemu_domain_reset_request(ShutdownCause reason, unsigned hart_id)
+void qemu_domain_reset_request(ShutdownCause reason, unsigned hart_mask)
 {
     if (reboot_action == REBOOT_ACTION_SHUTDOWN &&
         reason != SHUTDOWN_CAUSE_SUBSYSTEM_RESET) {
@@ -561,8 +561,8 @@ void qemu_domain_reset_request(ShutdownCause reason, unsigned hart_id)
     } else {
         reset_requested = reason;
     }
-    reset_hartid = hart_id;
-    cpu_stop_current();
+    reset_hart_mask = hart_mask;
+    // cpu_stop_current();
     qemu_notify_event();
 }
 
@@ -726,11 +726,17 @@ static bool main_loop_should_exit(void)
     }
 
     if (qemu_domain_reset_requested()){
-        qemu_log_mask(CPU_LOG_OPENSBI, "%s: reset_hart_id =  %d\n", __func__, reset_hartid);
-        CPUState *cpu = qemu_get_cpu(reset_hartid);
+        qemu_log_mask(CPU_LOG_OPENSBI, "%s: reset_hart_mask =  %d\n", __func__, reset_hart_mask);
+        CPUState *cpu;
         pause_all_vcpus_keep_clock();
         cpu_synchronize_all_states();
-        cpu_reset(cpu);
+        for (int hartid = 0; reset_hart_mask != 0; ++hartid) {
+            if(reset_hart_mask&1){
+                cpu = qemu_get_cpu(hartid);
+                cpu_reset(cpu);
+            }
+            reset_hart_mask >>= 1;
+        }
         // qemu synchronizes the cpu state after a CPU RESET
         cpu_synchronize_all_post_reset();
         resume_all_vcpus();
