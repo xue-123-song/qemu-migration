@@ -46,16 +46,13 @@ addr = 8 --> hart 2 reset
 static void d_reset_write(void *opaque, hwaddr addr,
            uint64_t val64, unsigned int size)
 {
-    bool system_wide = false;
     qemu_log_mask(CPU_LOG_OPENSBI, "%s: write: addr=0x%x val=0x%016" PRIx64 "\n", __func__, (unsigned)addr, val64);
-    if (addr == 0){
-        system_wide  = true;
-    }
     int hartid = addr >> 2;
-    {
-        int status = val64 & 0xffff;
-        int code = (val64 >> 16) & 0xffff;
-        switch (status) {
+    int status = val64 & 0xffff;
+    int code = (val64 >> 16) & 0xffff;
+    bool system_wide = (addr == 0) && (code == 0);
+    bool support_code = (addr == 0);
+    switch (status) {
         case FINISHER_FAIL:
             exit(code);
         case FINISHER_PASS:
@@ -64,16 +61,26 @@ static void d_reset_write(void *opaque, hwaddr addr,
         {
             if(system_wide){
                 qemu_system_reset_request(SHUTDOWN_CAUSE_GUEST_RESET);
-            }else{
-                qemu_domain_reset_request(SHUTDOWN_CAUSE_DOMAIN_RESET, hartid);
-                qemu_log_mask(CPU_LOG_OPENSBI, "%s: SHUTDOWN_CAUSE_DOMAIN_RESET %d\n", __func__, hartid);
+            } else if (support_code){ 
+                // Support one write to reset multiple CPUs.
+                // The reset software driver does not need more than one write ops. 
+                qemu_domain_reset_request(SHUTDOWN_CAUSE_DOMAIN_RESET, code);
+                qemu_log_mask(CPU_LOG_OPENSBI, "%s: SHUTDOWN_CAUSE_DOMAIN_RESET "
+                            "code = %x\n", __func__, code);
+
+            } else{ 
+                // Software code should correctly handle the sequence of reset.
+                // The reset software driver should reset other CPUs before resetting the current CPU.
+                qemu_domain_reset_request(SHUTDOWN_CAUSE_DOMAIN_RESET, 1 << hartid);
+                qemu_log_mask(CPU_LOG_OPENSBI, "%s: SHUTDOWN_CAUSE_DOMAIN_RESET "
+                            "hart = %d\n", __func__, hartid);
             }
         }
             return;
         default:
             break;
         }
-    }
+    
     qemu_log_mask(LOG_GUEST_ERROR, "%s: write: addr=0x%x val=0x%016" PRIx64 "\n",
                   __func__, (int)addr, val64);
 }
