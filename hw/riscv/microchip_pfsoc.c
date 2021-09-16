@@ -124,8 +124,8 @@ static const MemMapEntry microchip_pfsoc_memmap[] = {
     [MICROCHIP_PFSOC_EMMC_SD_MUX] =     { 0x4f000000,        0x4 },
     [MICROCHIP_PFSOC_DRAM_LO] =         { 0x80000000, 0x40000000 },
     [MICROCHIP_PFSOC_DRAM_LO_ALIAS] =   { 0xc0000000, 0x40000000 },
-    [MICROCHIP_PFSOC_DRAM_HI] =       { 0x1000000000,        0x0 },
-    [MICROCHIP_PFSOC_DRAM_HI_ALIAS] = { 0x1400000000,        0x0 },
+    [MICROCHIP_PFSOC_DRAM_HI] =       { 0x1000000000, 0x40000000 },
+    [MICROCHIP_PFSOC_DRAM_HI_ALIAS] = { 0x1400000000, 0x40000000 },
 };
 
 static void microchip_pfsoc_soc_instance_init(Object *obj)
