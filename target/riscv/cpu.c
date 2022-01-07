@@ -318,6 +318,15 @@ static void riscv_cpu_dump_state(CPUState *cs, FILE *f, int flags)
             }
         }
     }
+    if (cpu->cfg.pmp) {
+        for(i =0; i< MAX_RISCV_PMPS; ++i){
+            qemu_fprintf(f, "%s_%d " TARGET_FMT_lx "\n", "pmpaddr", i, pmpaddr_csr_read(env, i));
+        }
+        for(i =0; i< MAX_RISCV_PMPS/4; ++i){
+            qemu_fprintf(f, "%s_%d " TARGET_FMT_lx "\n", "pmpcfg", i, pmpcfg_csr_read(env, i));
+        }
+        qemu_fprintf(f, "%s %d\n", "pmprules", env->pmp_state.num_rules);
+    }
 }
 
 static void riscv_cpu_set_pc(CPUState *cs, vaddr value)
@@ -362,7 +371,6 @@ static void riscv_cpu_reset(DeviceState *dev)
     RISCVCPU *cpu = RISCV_CPU(cs);
     RISCVCPUClass *mcc = RISCV_CPU_GET_CLASS(cpu);
     CPURISCVState *env = &cpu->env;
-
     mcc->parent_reset(dev);
 #ifndef CONFIG_USER_ONLY
     env->priv = PRV_M;
@@ -370,7 +378,15 @@ static void riscv_cpu_reset(DeviceState *dev)
     env->mcause = 0;
     env->pc = env->resetvec;
     env->two_stage_lookup = false;
+    env->satp = 0;
+    env->scause = 0;
+    env->sepc = 0;
+    env->stvec = 0;
+    env->mcause = 0;
+    env->mepc = 0;
+    env->mtvec = 0;
 #endif
+    memset(&env->pmp_state, 0, sizeof(env->pmp_state));
     cs->exception_index = RISCV_EXCP_NONE;
     env->load_res = -1;
     set_default_nan_mode(1, &env->fp_status);

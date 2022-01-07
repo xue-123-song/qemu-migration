@@ -53,13 +53,14 @@
 #include "hw/intc/sifive_plic.h"
 #include "sysemu/device_tree.h"
 #include "sysemu/sysemu.h"
+#include "hw/cpu/sifive_d_reset.h"
 
 /*
  * The BIOS image used by this machine is called Hart Software Services (HSS).
  * See https://github.com/polarfire-soc/hart-software-services
  */
 #define BIOS_FILENAME   "hss.bin"
-#define RESET_VECTOR    0x20220000
+#define RESET_VECTOR    0x20220100
 
 /* CLINT timebase frequency */
 #define CLINT_TIMEBASE_FREQ 1000000
@@ -88,6 +89,7 @@
 static const MemMapEntry microchip_pfsoc_memmap[] = {
     [MICROCHIP_PFSOC_RSVD0] =           {        0x0,      0x100 },
     [MICROCHIP_PFSOC_DEBUG] =           {      0x100,      0xf00 },
+	[SIFIVE_RESET_TEST] =     			{   0x100000,     0x1000 },
     [MICROCHIP_PFSOC_E51_DTIM] =        {  0x1000000,     0x2000 },
     [MICROCHIP_PFSOC_BUSERR_UNIT0] =    {  0x1700000,     0x1000 },
     [MICROCHIP_PFSOC_BUSERR_UNIT1] =    {  0x1701000,     0x1000 },
@@ -98,6 +100,7 @@ static const MemMapEntry microchip_pfsoc_memmap[] = {
     [MICROCHIP_PFSOC_L2CC] =            {  0x2010000,     0x1000 },
     [MICROCHIP_PFSOC_DMA] =             {  0x3000000,   0x100000 },
     [MICROCHIP_PFSOC_L2LIM] =           {  0x8000000,  0x2000000 },
+	[MICROCHIP_PFSOC_L2SCRATCHPAD] =	{  0xA000000,   0x20000},
     [MICROCHIP_PFSOC_PLIC] =            {  0xc000000,  0x4000000 },
     [MICROCHIP_PFSOC_MMUART0] =         { 0x20000000,     0x1000 },
     [MICROCHIP_PFSOC_SYSREG] =          { 0x20002000,     0x2000 },
@@ -118,7 +121,8 @@ static const MemMapEntry microchip_pfsoc_memmap[] = {
     [MICROCHIP_PFSOC_GPIO1] =           { 0x20121000,     0x1000 },
     [MICROCHIP_PFSOC_GPIO2] =           { 0x20122000,     0x1000 },
     [MICROCHIP_PFSOC_ENVM_CFG] =        { 0x20200000,     0x1000 },
-    [MICROCHIP_PFSOC_ENVM_DATA] =       { 0x20220000,    0x20000 },
+ 	[MICROCHIP_PFSOC_ENVM_DATA] =       { 0x20220000,    0x20000 },
+//   [MICROCHIP_PFSOC_ENVM_DATA] =       { 0x20200000,    0x100000 },
     [MICROCHIP_PFSOC_QSPI_XIP] =        { 0x21000000,  0x1000000 },
     [MICROCHIP_PFSOC_IOSCB] =           { 0x30000000, 0x10000000 },
     [MICROCHIP_PFSOC_EMMC_SD_MUX] =     { 0x4f000000,        0x4 },
@@ -182,9 +186,10 @@ static void microchip_pfsoc_soc_realize(DeviceState *dev, Error **errp)
     const MemMapEntry *memmap = microchip_pfsoc_memmap;
     MemoryRegion *system_memory = get_system_memory();
     MemoryRegion *rsvd0_mem = g_new(MemoryRegion, 1);
-    MemoryRegion *e51_dtim_mem = g_new(MemoryRegion, 1);
-    MemoryRegion *l2lim_mem = g_new(MemoryRegion, 1);
-    MemoryRegion *envm_data = g_new(MemoryRegion, 1);
+    MemoryRegion *e51_dtim_mem = g_new(MemoryRegion, 1);    
+	MemoryRegion *l2lim_mem = g_new(MemoryRegion, 1);
+    MemoryRegion *l2scratch_mem = g_new(MemoryRegion, 1);
+	MemoryRegion *envm_data = g_new(MemoryRegion, 1);
     MemoryRegion *qspi_xip_mem = g_new(MemoryRegion, 1);
     char *plic_hart_config;
     size_t plic_hart_config_len;
@@ -257,6 +262,11 @@ static void microchip_pfsoc_soc_realize(DeviceState *dev, Error **errp)
     memory_region_add_subregion(system_memory,
                                 memmap[MICROCHIP_PFSOC_L2LIM].base,
                                 l2lim_mem);
+ 	memory_region_init_ram(l2scratch_mem, NULL, "microchip.pfsoc.l2limscratch",
+                           memmap[MICROCHIP_PFSOC_L2SCRATCHPAD].size, &error_fatal);
+    memory_region_add_subregion(system_memory,
+                                memmap[MICROCHIP_PFSOC_L2SCRATCHPAD].base,
+                                l2scratch_mem);
 
     /* create PLIC hart topology configuration string */
     plic_hart_config_len = (strlen(MICROCHIP_PFSOC_PLIC_HART_CONFIG) + 1) *
@@ -398,6 +408,9 @@ static void microchip_pfsoc_soc_realize(DeviceState *dev, Error **errp)
         memmap[MICROCHIP_PFSOC_GPIO2].base,
         memmap[MICROCHIP_PFSOC_GPIO2].size);
 
+	/* Reset unit*/
+	unsigned long dev_addr = memmap[SIFIVE_RESET_TEST].base;
+    sifive_d_reset_create(dev_addr);
     /* eNVM */
     memory_region_init_rom(envm_data, OBJECT(dev), "microchip.pfsoc.envm.data",
                            memmap[MICROCHIP_PFSOC_ENVM_DATA].size,

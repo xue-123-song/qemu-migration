@@ -310,7 +310,11 @@ static int get_physical_address_pmp(CPURISCVState *env, int *prot,
     if (!pmp_hart_has_privs(env, addr, size, 1 << access_type, &pmp_priv,
                             mode)) {
         *prot = 0;
-        return TRANSLATE_PMP_FAIL;
+        qemu_log_mask(CPU_LOG_OPENSBI,
+                          "%s: cpuid:%lx address=%lx, prop=0\n",
+                          __func__, env->mhartid, addr);
+ 
+	return TRANSLATE_PMP_FAIL;
     }
 
     *prot = pmp_priv_to_page_prot(pmp_priv);
@@ -881,11 +885,6 @@ bool riscv_cpu_tlb_fill(CPUState *cs, vaddr address, int size,
     if (ret == TRANSLATE_PMP_FAIL) {
         pmp_violation = true;
     }
-    if(address==0x100000){
-        qemu_log_mask(CPU_LOG_OPENSBI,
-                          "%s: cpuid:%lx address=%lx, pa=%lx,ret=%d prop=%x\n",
-                          __func__, env->mhartid, address, pa, ret, prot_pmp);
-    }
 
     if (ret == TRANSLATE_SUCCESS) {
         tlb_set_page(cs, address & ~(tlb_size - 1), pa & ~(tlb_size - 1),
@@ -894,11 +893,9 @@ bool riscv_cpu_tlb_fill(CPUState *cs, vaddr address, int size,
     } else if (probe) {
         return false;
     } else {
-        if(address==0x100000){
-            qemu_log_mask(CPU_LOG_OPENSBI,
+        qemu_log_mask(CPU_LOG_OPENSBI,
                           "%s: raise mmu error cpuid:%lx address=%lx, pa=%lx,ret=%d prop=%x\n",
                           __func__, env->mhartid, address, pa, ret, prot_pmp);
-        }
         raise_mmu_exception(env, address, access_type, pmp_violation,
                             first_stage_error,
                             riscv_cpu_virt_enabled(env) ||
