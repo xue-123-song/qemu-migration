@@ -408,6 +408,74 @@ SRST
 ERST
 
     {
+        .name       = "loadcpu",
+        .args_type  = "vcpu:i,filename:s",
+        .params     = "[vcpu] [filename]",
+        .help       = "load a vcpu's state",
+        .cmd        = hmp_load_vcpu,
+    },
+
+SRST
+``load``
+  Load a vcpu's state
+ERST
+
+    {
+        .name       = "reset",
+        .args_type  = "vcpu:i",
+        .params     = "vcpu",
+        .help       = "reset a vcpu",
+        .cmd        = hmp_reset_vcpu,
+    },
+
+SRST
+``reset``
+  Reset a vcpu
+ERST
+
+    {
+        .name       = "pause",
+        .args_type  = "vcpu:i",
+        .params     = "vcpu",
+        .help       = "pause a vcpu",
+        .cmd        = hmp_pause_vcpu,
+    },
+
+SRST
+``pause``
+  Pause a vcpu
+ERST
+
+
+    {
+        .name       = "resume",
+        .args_type  = "vcpu:i",
+        .params     = "vcpu",
+        .help       = "resume a vcpu",
+        .cmd        = hmp_resume_vcpu,
+    },
+
+SRST
+``resume``
+  resume a vcpu from paused state
+ERST
+
+
+
+    {
+        .name       = "dumpcpu",
+        .args_type  = "vcpu:i",
+        .params     = "[vcpu]",
+        .help       = "dump cpu information",
+        .cmd        = hmp_dump_vcpu,
+    },
+
+SRST
+  ``dump ``
+    Dump the cpu information.
+ERST
+
+    {
         .name       = "system_wakeup",
         .args_type  = "",
         .params     = "",

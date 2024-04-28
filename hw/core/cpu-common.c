@@ -109,6 +109,15 @@ void cpu_dump_state(CPUState *cpu, FILE *f, int flags)
     }
 }
 
+void cpu_load_state(CPUState *cpu, const char *filename)
+{
+    CPUClass *cc = CPU_GET_CLASS(cpu);
+
+    if (cc->load_state) {
+        cc->load_state(cpu, filename);
+    }
+}
+
 void cpu_reset(CPUState *cpu)
 {
     device_cold_reset(DEVICE(cpu));

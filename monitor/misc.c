@@ -22,6 +22,8 @@
  * THE SOFTWARE.
  */
 
+
+
 #include "qemu/osdep.h"
 #include "monitor-internal.h"
 #include "monitor/qdev.h"
@@ -76,6 +78,7 @@
 #include "qapi/qmp-event.h"
 #include "sysemu/cpus.h"
 #include "qemu/cutils.h"
+#include "qemu/module.h"
 
 #if defined(TARGET_S390X)
 #include "hw/s390x/storage-keys.h"
@@ -318,6 +321,109 @@ static void hmp_info_registers(Monitor *mon, const QDict *qdict)
 
         cpu_dump_state(cs, NULL, CPU_DUMP_FPU);
     }
+}
+
+
+static void hmp_load_vcpu(Monitor *mon, const QDict *qdict)
+{
+    const char *filename = qdict_get_str(qdict, "filename");
+    int vcpu = qdict_get_try_int(qdict, "vcpu", -1);
+    CPUState *cs;
+
+    cs = vcpu >= 0 ? qemu_get_cpu(vcpu) : mon_get_cpu(mon);
+
+    if (!cs) {
+        if (vcpu >= 0) {
+            monitor_printf(mon, "CPU#%d not available\n", vcpu);
+        } else {
+            monitor_printf(mon, "No CPU available\n");
+        }
+        return;
+    }
+
+    monitor_printf(mon, "\nCPU#%d FILE:%s\n", cs->cpu_index, filename);
+    cpu_load_state(cs, filename);
+}
+
+static void hmp_reset_vcpu(Monitor *mon, const QDict *qdict)
+{
+    int vcpu = qdict_get_try_int(qdict, "vcpu", -1);
+    CPUState *cs;
+
+    cs = vcpu >= 0 ? qemu_get_cpu(vcpu) : mon_get_cpu(mon);
+
+    if (!cs) {
+        if (vcpu >= 0) {
+            monitor_printf(mon, "CPU#%d not available\n", vcpu);
+        } else {
+            monitor_printf(mon, "No CPU available\n");
+        }
+        return;
+    }
+
+    monitor_printf(mon, "\nCPU#%d\n", cs->cpu_index);
+    cpu_reset(cs);
+}
+
+static void hmp_dump_vcpu(Monitor *mon, const QDict *qdict)
+{
+    int vcpu = qdict_get_try_int(qdict, "vcpu", -1);
+    CPUState *cs;
+
+    cs = vcpu >= 0 ? qemu_get_cpu(vcpu) : mon_get_cpu(mon);
+
+    if (!cs) {
+        if (vcpu >= 0) {
+                monitor_printf(mon, "CPU#%d not available\n", vcpu);
+            } else {
+                monitor_printf(mon, "No CPU available\n");
+            }
+        return;
+    }
+
+    monitor_printf(mon, "\nCPU#%d\n", cs->cpu_index);
+    cpu_dump_state(cs, NULL, CPU_DUMP_FPU);
+    pause_vcpu(cs);
+}
+
+static void hmp_pause_vcpu(Monitor *mon, const QDict *qdict)
+{
+    int vcpu =  qdict_get_try_int(qdict, "vcpu", -1);
+    CPUState *cs;
+
+    cs = vcpu >= 0 ? qemu_get_cpu(vcpu) : mon_get_cpu(mon);
+
+    if (!cs) {
+        if (vcpu >= 0) {
+            monitor_printf(mon, "CPU#%d not available\n", vcpu);
+        } else {
+            monitor_printf(mon, "No CPU available\n");
+        }
+        return;
+    }
+
+    monitor_printf(mon, "\nCPU#%d\n", cs->cpu_index);
+    pause_vcpu(cs);
+}
+
+static void hmp_resume_vcpu(Monitor *mon, const QDict *qdict)
+{
+    int vcpu =  qdict_get_try_int(qdict, "vcpu", -1);
+    CPUState *cs;
+
+    cs = vcpu >= 0 ? qemu_get_cpu(vcpu) : mon_get_cpu(mon);
+
+    if (!cs) {
+        if (vcpu >= 0) {
+            monitor_printf(mon, "CPU#%d not available\n", vcpu);
+        } else {
+            monitor_printf(mon, "No CPU available\n");
+        }
+        return;
+    }
+
+    monitor_printf(mon, "\nCPU#%d\n", cs->cpu_index);
+    resume_vcpu(cs);
 }
 
 #ifdef CONFIG_TCG

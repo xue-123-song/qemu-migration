@@ -242,6 +242,8 @@ static ObjectClass *riscv_cpu_class_by_name(const char *cpu_model)
     return oc;
 }
 
+#define DUMP_CPU_MIGRATE 
+
 static void riscv_cpu_dump_state(CPUState *cs, FILE *f, int flags)
 {
     RISCVCPU *cpu = RISCV_CPU(cs);
@@ -253,53 +255,45 @@ static void riscv_cpu_dump_state(CPUState *cs, FILE *f, int flags)
         qemu_fprintf(f, " %s %d\n", "V      =  ", riscv_cpu_virt_enabled(env));
     }
 #endif
+
     qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "pc      ", env->pc);
+
 #ifndef CONFIG_USER_ONLY
     qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mhartid ", env->mhartid);
     qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mstatus ", (target_ulong)env->mstatus);
+    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mip     ", env->mip);
+    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mie     ", env->mie);
+    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mideleg ", env->mideleg);
+    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "medeleg ", env->medeleg);
+    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mtvec   ", env->mtvec);
+    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "stvec   ", env->stvec);
+    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mepc    ", env->mepc);
+    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "sepc    ", env->sepc);
+    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mcause  ", env->mcause);
+    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "scause  ", env->scause);
+    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mtval   ", env->mtval);
+    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "stval   ", env->stval);
+    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mscratch", env->mscratch);
+    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "sscratch", env->sscratch);
+    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "satp    ", env->satp);
+
     if (riscv_cpu_is_32bit(env)) {
         qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mstatush ",
                      (target_ulong)(env->mstatus >> 32));
     }
+
     if (riscv_has_ext(env, RVH)) {
         qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "hstatus ", env->hstatus);
         qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "vsstatus ",
                      (target_ulong)env->vsstatus);
-    }
-    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mip     ", env->mip);
-    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mie     ", env->mie);
-    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mideleg ", env->mideleg);
-    if (riscv_has_ext(env, RVH)) {
+        qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "htval ", env->htval);
+        qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "vscause ", env->vscause);
+        qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mtval2 ", env->mtval2);
         qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "hideleg ", env->hideleg);
-    }
-    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "medeleg ", env->medeleg);
-    if (riscv_has_ext(env, RVH)) {
         qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "hedeleg ", env->hedeleg);
-    }
-    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mtvec   ", env->mtvec);
-    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "stvec   ", env->stvec);
-    if (riscv_has_ext(env, RVH)) {
         qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "vstvec  ", env->vstvec);
-    }
-    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mepc    ", env->mepc);
-    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "sepc    ", env->sepc);
-    if (riscv_has_ext(env, RVH)) {
         qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "vsepc   ", env->vsepc);
     }
-    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mcause  ", env->mcause);
-    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "scause  ", env->scause);
-    if (riscv_has_ext(env, RVH)) {
-        qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "vscause ", env->vscause);
-    }
-    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mtval   ", env->mtval);
-    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "stval   ", env->stval);
-    if (riscv_has_ext(env, RVH)) {
-        qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "htval ", env->htval);
-        qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mtval2 ", env->mtval2);
-    }
-    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "mscratch", env->mscratch);
-    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "sscratch", env->sscratch);
-    qemu_fprintf(f, " %s " TARGET_FMT_lx "\n", "satp    ", env->satp);
 #endif
 
     for (i = 0; i < 32; i++) {
@@ -309,6 +303,7 @@ static void riscv_cpu_dump_state(CPUState *cs, FILE *f, int flags)
             qemu_fprintf(f, "\n");
         }
     }
+
     if (flags & CPU_DUMP_FPU) {
         for (i = 0; i < 32; i++) {
             qemu_fprintf(f, " %s %016" PRIx64,
@@ -318,6 +313,7 @@ static void riscv_cpu_dump_state(CPUState *cs, FILE *f, int flags)
             }
         }
     }
+
     if (cpu->cfg.pmp) {
         for(i =0; i< MAX_RISCV_PMPS; ++i){
             qemu_fprintf(f, "%s_%d " TARGET_FMT_lx "\n", "pmpaddr", i, pmpaddr_csr_read(env, i));
@@ -327,6 +323,463 @@ static void riscv_cpu_dump_state(CPUState *cs, FILE *f, int flags)
         }
         qemu_fprintf(f, "%s %d\n", "pmprules", env->pmp_state.num_rules);
     }
+
+#ifdef DUMP_CPU_MIGRATE
+    FILE *fp;
+    fp = fopen("/tmp/qemu-cpu.txt", "w");
+
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "pc      ", env->pc);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "mhartid ", env->mhartid);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "mstatus ", (target_ulong)env->mstatus);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "mip     ", env->mip);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "mie     ", env->mie);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "mideleg ", env->mideleg);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "medeleg ", env->medeleg);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "mtvec   ", env->mtvec);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "stvec   ", env->stvec);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "mepc    ", env->mepc);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "sepc    ", env->sepc);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "mcause  ", env->mcause);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "scause  ", env->scause);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "mtval   ", env->mtval);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "stval   ", env->stval);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "mscratch", env->mscratch);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "sscratch", env->sscratch);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "satp    ", env->satp);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "load_res", env->load_res);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "load_val", env->load_val);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "frm     ", env->frm);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "badaddr ", env->badaddr);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "guest_phys_fault_addr", env->guest_phys_fault_addr);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "priv_ver  ", env->priv_ver);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "vext_ver  ", env->vext_ver);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "misa      ", env->misa);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "misa_mask ", env->misa_mask);
+    fprintf(fp, " %s " "%x" "\n", "features  ", env->features);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "priv      ", env->priv);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "virt      ", env->virt);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "resetvec  ", env->resetvec);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "scounteren   ", env->scounteren);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "mcounteren  ", env->mcounteren);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "mfromhost ", env->mfromhost);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "mtohost   ", env->mtohost);
+    fprintf(fp, " %s " TARGET_FMT_lx "\n", "timecmp   ", env->timecmp);
+
+    if (riscv_cpu_is_32bit(env)) {
+        fprintf(fp, " %s " TARGET_FMT_lx "\n", "mstatush ",
+                     (target_ulong)(env->mstatus >> 32));
+    }
+
+    for (i = 0; i < 32; i++) {
+        fprintf(fp, " %s " TARGET_FMT_lx "\n", riscv_int_regnames[i], env->gpr[i]);
+    }
+    
+    for (i = 0; i < 32; i++) {
+        fprintf(fp, " %s %016" PRIx64 "\n", riscv_fpr_regnames[i], env->fpr[i]);
+    }
+
+    if (cpu->cfg.pmp) {
+        for(i =0; i< MAX_RISCV_PMPS; ++i){
+            fprintf(fp, "%s_%d " TARGET_FMT_lx "\n", "pmpaddr", i, pmpaddr_csr_read(env, i));
+        }
+        for(i =0; i< MAX_RISCV_PMPS/4; ++i){
+            fprintf(fp, "%s_%d " TARGET_FMT_lx "\n", "pmpcfg", i, pmpcfg_csr_read(env, i));
+        }
+    }
+
+    fclose(fp);
+#endif
+}
+
+#define FILE_LINE_MAX 100
+
+static void riscv_cpu_load_state(CPUState *cs, const char *filename)
+{
+    RISCVCPU *cpu = RISCV_CPU(cs);
+    CPURISCVState *env = &cpu->env;
+    bool flag;
+    char str_line[FILE_LINE_MAX], reg[FILE_LINE_MAX];
+    FILE *fp, *out;
+
+//     RISCVCPUClass *mcc = RISCV_CPU_GET_CLASS(cpu);
+//     mcc->parent_reset(dev);
+// #ifndef CONFIG_USER_ONLY
+//     env->priv = PRV_M;
+//     env->mstatus &= ~(MSTATUS_MIE | MSTATUS_MPRV);
+//     env->mcause = 0;
+//     env->pc = env->resetvec;
+//     env->two_stage_lookup = false;
+//     env->satp = 0;
+//     env->scause = 0;
+//     env->sepc = 0;
+//     env->stvec = 0;
+//     env->mcause = 0;
+//     env->mepc = 0;
+//     env->mtvec = 0;
+// #endif
+//     memset(&env->pmp_state, 0, sizeof(env->pmp_state));
+//     cs->exception_index = RISCV_EXCP_NONE;
+//     env->load_res = -1;
+//     set_default_nan_mode(1, &env->fp_status);
+
+    fp = fopen(filename, "r");
+    out = fopen("/home/xst/Desktop/out-test.txt", "w");
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "pc %lx", &env->pc) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->pc);  
+    } else {
+        monitor_printf("Error: failed to read pc\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "mhartid %lx", &env->mhartid) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->mhartid);  
+    } else {
+        monitor_printf("Error: failed to read mhartid\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "mstatus %lx", &env->mstatus) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->mstatus);  
+    } else {
+        monitor_printf("Error: failed to read mstatus\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "mip %lx", &env->mip) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->mip);  
+    } else {
+        monitor_printf("Error: failed to read mip\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "mie %lx", &env->mie) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->mie);  
+    } else {
+        monitor_printf("Error: failed to read mie\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "mideleg %lx", &env->mideleg) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->mideleg);  
+    } else {
+        monitor_printf("Error: failed to read mideleg\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "medeleg %lx", &env->medeleg) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->medeleg);  
+    } else {
+        monitor_printf("Error: failed to read medeleg\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "mtvec %lx", &env->mtvec) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->mtvec);  
+    } else {
+        monitor_printf("Error: failed to read mtvec\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "stvec %lx", &env->stvec) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->stvec);  
+    } else {
+        monitor_printf("Error: failed to read stvec\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "mepc %lx", &env->mepc) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->mepc);  
+    } else {
+        monitor_printf("Error: failed to read mepc\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "sepc %lx", &env->sepc) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->sepc);  
+    } else {
+        monitor_printf("Error: failed to read sepc\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "mcause %lx", &env->mcause) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->mcause);  
+    } else {
+        monitor_printf("Error: failed to read mcause\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "scause %lx", &env->scause) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->scause);  
+    } else {
+        monitor_printf("Error: failed to read scause\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "mtval %lx", &env->mtval) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->mtval);  
+    } else {
+        monitor_printf("Error: failed to read mtval\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "stval %lx", &env->stval) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->stval);  
+    } else {
+        monitor_printf("Error: failed to read stval\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "mscratch %lx", &env->mscratch) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->mscratch);  
+    } else {
+        monitor_printf("Error: failed to read mscratch\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "sscratch %lx", &env->sscratch) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->sscratch);  
+    } else {
+        monitor_printf("Error: failed to read sscratch\n");
+        goto end;
+    }
+    
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "satp %lx", &env->satp) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->satp);  
+    } else {
+        monitor_printf("Error: failed to read satp\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "load_res %lx", &env->load_res) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->load_res);  
+    } else {
+        monitor_printf("Error: failed to read load_res\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "load_val %lx", &env->load_val) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->load_val);  
+    } else {
+        monitor_printf("Error: failed to read load_val\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "frm %lx", &env->frm) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->frm);  
+    } else {
+        monitor_printf("Error: failed to read frm\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "badaddr %lx", &env->badaddr) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->badaddr);  
+    } else {
+        monitor_printf("Error: failed to read badaddr\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "guest_phys_fault_addr %lx", &env->guest_phys_fault_addr) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->guest_phys_fault_addr);  
+    } else {
+        monitor_printf("Error: failed to read guest_phys_fault_addr\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "priv_ver %lx", &env->priv_ver) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->priv_ver);  
+    } else {
+        monitor_printf("Error: failed to read priv_ver\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "vext_ver %lx", &env->vext_ver) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->vext_ver);  
+    } else {
+        monitor_printf("Error: failed to read vext_ver\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "misa %lx", &env->misa) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->misa);  
+    } else {
+        monitor_printf("Error: failed to read misa\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "misa_mask %lx", &env->misa_mask) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->misa_mask);  
+    } else {
+        monitor_printf("Error: failed to read misa_mask\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "features %x", &env->features) == 1) {
+        fprintf(out, " %s %x\n", str_line, env->features);  
+    } else {
+        monitor_printf("Error: failed to read features\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "priv %lx", &env->priv) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->priv);  
+    } else {
+        monitor_printf("Error: failed to read priv\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "virt %lx", &env->virt) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->virt);  
+    } else {
+        monitor_printf("Error: failed to read virt\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "resetvec %lx", &env->resetvec) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->resetvec);  
+    } else {
+        monitor_printf("Error: failed to read resetvec\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "scounteren %lx", &env->scounteren) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->scounteren);  
+    } else {
+        monitor_printf("Error: failed to read scounteren\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "mcounteren %lx", &env->mcounteren) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->mcounteren);  
+    } else {
+        monitor_printf("Error: failed to read mcounteren\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "mfromhost %lx", &env->mfromhost) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->mfromhost);  
+    } else {
+        monitor_printf("Error: failed to read mfromhost\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "mtohost %lx", &env->mtohost) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->mtohost);  
+    } else {
+        monitor_printf("Error: failed to read mtohost\n");
+        goto end;
+    }
+
+    flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (sscanf(str_line, "timecmp %lx", &env->timecmp) == 1) {
+        fprintf(out, " %s %lx\n", str_line, env->timecmp);  
+    } else {
+        monitor_printf("Error: failed to read timecmp\n");
+        goto end;
+    }
+
+    if (riscv_cpu_is_32bit(env)) {
+        flag = fgets(str_line, FILE_LINE_MAX, fp);
+        if (sscanf(str_line, "mstatush %lx", &env->mstatus) == 1) {
+            fprintf(out, " %s %lx\n", str_line, env->mstatus);  
+        } else {
+            monitor_printf("Error: failed to read mstatush\n");
+            goto end;
+        }
+    }
+
+    for (int i = 0; i < 32; i++) {
+        flag = fgets(str_line, FILE_LINE_MAX, fp);
+        if (sscanf(str_line, "%s %lx", reg, &env->gpr[i]) == 2) {
+            fprintf(out, " %s %lx\n", reg, env->gpr[i]);  
+        } else {
+            monitor_printf("Error: failed to read gpr[%d]\n", i);
+            goto end;
+        }
+    }
+
+    for (int i = 0; i < 32; i++) {
+        flag = fgets(str_line, FILE_LINE_MAX, fp);
+        if (sscanf(str_line, "%s %lx", reg, &env->fpr[i]) == 2) {
+            fprintf(out, " %s %lx\n", reg, env->fpr[i]);  
+        } else {
+            monitor_printf("Error: failed to read fpr[%d]\n", i);
+            goto end;
+        }
+    }
+
+
+
+
+//    for(i =0; i< MAX_RISCV_PMPS; ++i){
+//             qemu_fprintf(f, "%s_%d " TARGET_FMT_lx "\n", "pmpaddr", i, pmpaddr_csr_read(env, i));
+//         }
+//         for(i =0; i< MAX_RISCV_PMPS/4; ++i){
+//             qemu_fprintf(f, "%s_%d " TARGET_FMT_lx "\n", "pmpcfg", i, pmpcfg_csr_read(env, i));
+//         }
+
+
+
+//     if (cpu->cfg.pmp) {
+//         for(int i =0; i< MAX_RISCV_PMPS; ++i){
+//             flag = fgets(str_line, FILE_LINE_MAX, fp);
+//             if (sscanf(str_line, "pmpaddr_%d %lx", i, ) == 2) {
+//                 fprintf(out, "pmpaddr_%d %lx\n", i, pmpaddr_csr_read(env, i));  
+//             } else {
+//                 monitor_printf("Error: failed to read pmpaddr[%d]\n", i);
+//                 goto end;
+//             }
+//         }
+//         for(int i =0; i< MAX_RISCV_PMPS/4; ++i){
+//             flag = fgets(str_line, FILE_LINE_MAX, fp);
+//             if (sscanf(str_line, "pmpcfg_%d %lx", i, &pmpcfg_csr_read(env, i)) == 2) {
+//                 fprintf(out, "pmpcfg_%d %lx\n", i, pmpcfg_csr_read(env, i));  
+//             } else {
+//                 monitor_printf("Error: failed to read pmpcfg[%d]\n", i);
+//                 goto end;
+//             }
+//         }
+//     }
+
+
+end:
+    fclose(fp);
+    fclose(out);
 }
 
 static void riscv_cpu_set_pc(CPUState *cs, vaddr value)
@@ -686,6 +1139,7 @@ static void riscv_cpu_class_init(ObjectClass *c, void *data)
     cc->gdb_read_register = riscv_cpu_gdb_read_register;
     cc->gdb_write_register = riscv_cpu_gdb_write_register;
     cc->gdb_num_core_regs = 33;
+    cc->load_state = riscv_cpu_load_state;
 #if defined(TARGET_RISCV32)
     cc->gdb_core_xml_file = "riscv-32bit-cpu.xml";
 #elif defined(TARGET_RISCV64)

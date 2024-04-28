@@ -37,6 +37,8 @@ void pause_all_vcpus(void);
 void cpu_stop_current(void);
 
 void pause_all_vcpus_keep_clock(void);
+void pause_vcpu(CPUState *cpu);
+void resume_vcpu(CPUState *cpu);
 
 extern int icount_align_option;
 

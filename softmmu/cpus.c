@@ -816,3 +816,43 @@ void qmp_inject_nmi(Error **errp)
     nmi_monitor_handle(monitor_get_cpu_index(monitor_cur()), errp);
 }
 
+static bool vcpu_paused(CPUState *cpu)
+{
+    return cpu->stopped;
+}
+
+void pause_vcpu(CPUState *cpu)
+{
+    qemu_clock_enable(QEMU_CLOCK_VIRTUAL, false);
+
+    if (qemu_cpu_is_self(cpu)) {
+        qemu_cpu_stop(cpu, true);
+    } else {
+        cpu->stop = true;
+        qemu_cpu_kick(cpu);
+    }
+
+    /* We need to drop the replay_lock so any vCPU threads woken up
+     * can finish their replay tasks
+     */
+    replay_mutex_unlock();
+
+    while (!vcpu_paused(cpu)) {
+        qemu_cond_wait(&qemu_pause_cond, &qemu_global_mutex);
+        qemu_cpu_kick(cpu);
+    }
+
+    qemu_mutex_unlock_iothread();
+    replay_mutex_lock();
+    qemu_mutex_lock_iothread();
+}
+
+void resume_vcpu(CPUState *cpu)
+{
+    if (!runstate_is_running()) {
+        return;
+    }
+
+    qemu_clock_enable(QEMU_CLOCK_VIRTUAL, true);
+    cpu_resume(cpu);
+}

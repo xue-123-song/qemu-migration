@@ -161,6 +161,8 @@ struct CPUClass {
      * class data that depends on the accelerator, see accel/accel-common.c.
      */
     void (*init_accel_cpu)(struct AccelCPUClass *accel_cpu, CPUClass *cc);
+
+    void (*load_state)(CPUState *cpu, const char *filename);
 };
 
 /*
@@ -532,6 +534,8 @@ enum CPUDumpFlags {
  * Dumps CPU state.
  */
 void cpu_dump_state(CPUState *cpu, FILE *f, int flags);
+
+void cpu_load_state(CPUState *cpu, const char *filename);
 
 #ifndef CONFIG_USER_ONLY
 /**
