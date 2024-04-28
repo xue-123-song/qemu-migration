@@ -393,11 +393,19 @@ static void riscv_cpu_dump_state(CPUState *cs, FILE *f, int flags)
 
 #define FILE_LINE_MAX 100
 
+// static inline char* safe_fgets(char *str_line, FILE *fp) {
+    // char *flag = fgets(str_line, FILE_LINE_MAX, fp);
+    // if (flag == NULL) {
+        // error_printf("Error: fgets error\n");
+    // }
+    // return flag;
+// }
+
 static void riscv_cpu_load_state(CPUState *cs, const char *filename)
 {
     RISCVCPU *cpu = RISCV_CPU(cs);
     CPURISCVState *env = &cpu->env;
-    bool flag;
+    char *flag;
     char str_line[FILE_LINE_MAX], reg[FILE_LINE_MAX];
     FILE *fp, *out;
 
@@ -426,6 +434,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     out = fopen("/home/xst/Desktop/out-test.txt", "w");
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "pc %lx", &env->pc) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->pc);  
     } else {
@@ -434,6 +445,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "mhartid %lx", &env->mhartid) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mhartid);  
     } else {
@@ -442,6 +456,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "mstatus %lx", &env->mstatus) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mstatus);  
     } else {
@@ -450,6 +467,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "mip %lx", &env->mip) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mip);  
     } else {
@@ -458,6 +478,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "mie %lx", &env->mie) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mie);  
     } else {
@@ -466,6 +489,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "mideleg %lx", &env->mideleg) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mideleg);  
     } else {
@@ -474,6 +500,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "medeleg %lx", &env->medeleg) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->medeleg);  
     } else {
@@ -482,6 +511,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "mtvec %lx", &env->mtvec) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mtvec);  
     } else {
@@ -490,6 +522,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "stvec %lx", &env->stvec) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->stvec);  
     } else {
@@ -498,6 +533,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "mepc %lx", &env->mepc) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mepc);  
     } else {
@@ -506,6 +544,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "sepc %lx", &env->sepc) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->sepc);  
     } else {
@@ -514,6 +555,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "mcause %lx", &env->mcause) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mcause);  
     } else {
@@ -522,6 +566,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "scause %lx", &env->scause) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->scause);  
     } else {
@@ -530,6 +577,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "mtval %lx", &env->mtval) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mtval);  
     } else {
@@ -538,6 +588,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "stval %lx", &env->stval) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->stval);  
     } else {
@@ -546,6 +599,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "mscratch %lx", &env->mscratch) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mscratch);  
     } else {
@@ -554,6 +610,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "sscratch %lx", &env->sscratch) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->sscratch);  
     } else {
@@ -562,6 +621,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
     
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "satp %lx", &env->satp) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->satp);  
     } else {
@@ -570,6 +632,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "load_res %lx", &env->load_res) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->load_res);  
     } else {
@@ -578,6 +643,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "load_val %lx", &env->load_val) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->load_val);  
     } else {
@@ -586,6 +654,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "frm %lx", &env->frm) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->frm);  
     } else {
@@ -594,6 +665,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "badaddr %lx", &env->badaddr) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->badaddr);  
     } else {
@@ -602,6 +676,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "guest_phys_fault_addr %lx", &env->guest_phys_fault_addr) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->guest_phys_fault_addr);  
     } else {
@@ -610,6 +687,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "priv_ver %lx", &env->priv_ver) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->priv_ver);  
     } else {
@@ -618,6 +698,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "vext_ver %lx", &env->vext_ver) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->vext_ver);  
     } else {
@@ -626,6 +709,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "misa %lx", &env->misa) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->misa);  
     } else {
@@ -634,6 +720,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "misa_mask %lx", &env->misa_mask) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->misa_mask);  
     } else {
@@ -642,6 +731,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "features %x", &env->features) == 1) {
         fprintf(out, " %s %x\n", str_line, env->features);  
     } else {
@@ -650,6 +742,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "priv %lx", &env->priv) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->priv);  
     } else {
@@ -658,6 +753,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "virt %lx", &env->virt) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->virt);  
     } else {
@@ -666,6 +764,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "resetvec %lx", &env->resetvec) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->resetvec);  
     } else {
@@ -674,6 +775,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "scounteren %lx", &env->scounteren) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->scounteren);  
     } else {
@@ -682,6 +786,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "mcounteren %lx", &env->mcounteren) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mcounteren);  
     } else {
@@ -690,6 +797,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "mfromhost %lx", &env->mfromhost) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mfromhost);  
     } else {
@@ -698,6 +808,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "mtohost %lx", &env->mtohost) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mtohost);  
     } else {
@@ -706,6 +819,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     }
 
     flag = fgets(str_line, FILE_LINE_MAX, fp);
+    if (flag == NULL) {
+        error_printf("Error: fgets error\n");
+    } 
     if (sscanf(str_line, "timecmp %lx", &env->timecmp) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->timecmp);  
     } else {
@@ -715,6 +831,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
 
     if (riscv_cpu_is_32bit(env)) {
         flag = fgets(str_line, FILE_LINE_MAX, fp);
+        if (flag == NULL) {
+            error_printf("Error: fgets error\n");
+        } 
         if (sscanf(str_line, "mstatush %lx", &env->mstatus) == 1) {
             fprintf(out, " %s %lx\n", str_line, env->mstatus);  
         } else {
@@ -725,6 +844,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
 
     for (int i = 0; i < 32; i++) {
         flag = fgets(str_line, FILE_LINE_MAX, fp);
+        if (flag == NULL) {
+            error_printf("Error: fgets error\n");
+        } 
         if (sscanf(str_line, "%s %lx", reg, &env->gpr[i]) == 2) {
             fprintf(out, " %s %lx\n", reg, env->gpr[i]);  
         } else {
@@ -735,6 +857,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
 
     for (int i = 0; i < 32; i++) {
         flag = fgets(str_line, FILE_LINE_MAX, fp);
+        if (flag == NULL) {
+            error_printf("Error: fgets error\n");
+        } 
         if (sscanf(str_line, "%s %lx", reg, &env->fpr[i]) == 2) {
             fprintf(out, " %s %lx\n", reg, env->fpr[i]);  
         } else {
@@ -750,6 +875,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
 
         for(int i = 0; i < MAX_RISCV_PMPS; ++i){
             flag = fgets(str_line, FILE_LINE_MAX, fp);
+            if (flag == NULL) {
+                error_printf("Error: fgets error\n");
+            } 
             if (sscanf(str_line, "pmpaddr_%d %lx", &j, &tmp) == 2) {
                 pmpaddr_csr_write(env, i, tmp);
                 fprintf(out, "pmpaddr_%d %lx\n", j, pmpaddr_csr_read(env, i));  
@@ -761,6 +889,9 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
 
         for(int i = 0; i < MAX_RISCV_PMPS/4; ++i){
             flag = fgets(str_line, FILE_LINE_MAX, fp);
+            if (flag == NULL) {
+                error_printf("Error: fgets error\n");
+            } 
             if (sscanf(str_line, "pmpcfg_%d %lx", &j, &tmp) == 2) {
                 pmpcfg_csr_write(env, i, tmp);
                 fprintf(out, "pmpcfg_%d %lx\n", j, pmpcfg_csr_read(env, i));  
