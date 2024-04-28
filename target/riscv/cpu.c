@@ -379,10 +379,10 @@ static void riscv_cpu_dump_state(CPUState *cs, FILE *f, int flags)
     }
 
     if (cpu->cfg.pmp) {
-        for(i =0; i< MAX_RISCV_PMPS; ++i){
+        for(i = 0; i < MAX_RISCV_PMPS; ++i){
             fprintf(fp, "%s_%d " TARGET_FMT_lx "\n", "pmpaddr", i, pmpaddr_csr_read(env, i));
         }
-        for(i =0; i< MAX_RISCV_PMPS/4; ++i){
+        for(i = 0; i < MAX_RISCV_PMPS/4; ++i){
             fprintf(fp, "%s_%d " TARGET_FMT_lx "\n", "pmpcfg", i, pmpcfg_csr_read(env, i));
         }
     }
@@ -429,7 +429,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "pc %lx", &env->pc) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->pc);  
     } else {
-        monitor_printf("Error: failed to read pc\n");
+        error_printf("Error: failed to read pc\n");
         goto end;
     }
 
@@ -437,7 +437,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "mhartid %lx", &env->mhartid) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mhartid);  
     } else {
-        monitor_printf("Error: failed to read mhartid\n");
+        error_printf("Error: failed to read mhartid\n");
         goto end;
     }
 
@@ -445,7 +445,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "mstatus %lx", &env->mstatus) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mstatus);  
     } else {
-        monitor_printf("Error: failed to read mstatus\n");
+        error_printf("Error: failed to read mstatus\n");
         goto end;
     }
 
@@ -453,7 +453,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "mip %lx", &env->mip) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mip);  
     } else {
-        monitor_printf("Error: failed to read mip\n");
+        error_printf("Error: failed to read mip\n");
         goto end;
     }
 
@@ -461,7 +461,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "mie %lx", &env->mie) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mie);  
     } else {
-        monitor_printf("Error: failed to read mie\n");
+        error_printf("Error: failed to read mie\n");
         goto end;
     }
 
@@ -469,7 +469,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "mideleg %lx", &env->mideleg) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mideleg);  
     } else {
-        monitor_printf("Error: failed to read mideleg\n");
+        error_printf("Error: failed to read mideleg\n");
         goto end;
     }
 
@@ -477,7 +477,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "medeleg %lx", &env->medeleg) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->medeleg);  
     } else {
-        monitor_printf("Error: failed to read medeleg\n");
+        error_printf("Error: failed to read medeleg\n");
         goto end;
     }
 
@@ -485,7 +485,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "mtvec %lx", &env->mtvec) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mtvec);  
     } else {
-        monitor_printf("Error: failed to read mtvec\n");
+        error_printf("Error: failed to read mtvec\n");
         goto end;
     }
 
@@ -493,7 +493,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "stvec %lx", &env->stvec) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->stvec);  
     } else {
-        monitor_printf("Error: failed to read stvec\n");
+        error_printf("Error: failed to read stvec\n");
         goto end;
     }
 
@@ -501,7 +501,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "mepc %lx", &env->mepc) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mepc);  
     } else {
-        monitor_printf("Error: failed to read mepc\n");
+        error_printf("Error: failed to read mepc\n");
         goto end;
     }
 
@@ -509,7 +509,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "sepc %lx", &env->sepc) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->sepc);  
     } else {
-        monitor_printf("Error: failed to read sepc\n");
+        error_printf("Error: failed to read sepc\n");
         goto end;
     }
 
@@ -517,7 +517,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "mcause %lx", &env->mcause) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mcause);  
     } else {
-        monitor_printf("Error: failed to read mcause\n");
+        error_printf("Error: failed to read mcause\n");
         goto end;
     }
 
@@ -525,7 +525,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "scause %lx", &env->scause) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->scause);  
     } else {
-        monitor_printf("Error: failed to read scause\n");
+        error_printf("Error: failed to read scause\n");
         goto end;
     }
 
@@ -533,7 +533,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "mtval %lx", &env->mtval) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mtval);  
     } else {
-        monitor_printf("Error: failed to read mtval\n");
+        error_printf("Error: failed to read mtval\n");
         goto end;
     }
 
@@ -541,7 +541,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "stval %lx", &env->stval) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->stval);  
     } else {
-        monitor_printf("Error: failed to read stval\n");
+        error_printf("Error: failed to read stval\n");
         goto end;
     }
 
@@ -549,7 +549,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "mscratch %lx", &env->mscratch) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mscratch);  
     } else {
-        monitor_printf("Error: failed to read mscratch\n");
+        error_printf("Error: failed to read mscratch\n");
         goto end;
     }
 
@@ -557,7 +557,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "sscratch %lx", &env->sscratch) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->sscratch);  
     } else {
-        monitor_printf("Error: failed to read sscratch\n");
+        error_printf("Error: failed to read sscratch\n");
         goto end;
     }
     
@@ -565,7 +565,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "satp %lx", &env->satp) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->satp);  
     } else {
-        monitor_printf("Error: failed to read satp\n");
+        error_printf("Error: failed to read satp\n");
         goto end;
     }
 
@@ -573,7 +573,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "load_res %lx", &env->load_res) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->load_res);  
     } else {
-        monitor_printf("Error: failed to read load_res\n");
+        error_printf("Error: failed to read load_res\n");
         goto end;
     }
 
@@ -581,7 +581,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "load_val %lx", &env->load_val) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->load_val);  
     } else {
-        monitor_printf("Error: failed to read load_val\n");
+        error_printf("Error: failed to read load_val\n");
         goto end;
     }
 
@@ -589,7 +589,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "frm %lx", &env->frm) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->frm);  
     } else {
-        monitor_printf("Error: failed to read frm\n");
+        error_printf("Error: failed to read frm\n");
         goto end;
     }
 
@@ -597,7 +597,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "badaddr %lx", &env->badaddr) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->badaddr);  
     } else {
-        monitor_printf("Error: failed to read badaddr\n");
+        error_printf("Error: failed to read badaddr\n");
         goto end;
     }
 
@@ -605,7 +605,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "guest_phys_fault_addr %lx", &env->guest_phys_fault_addr) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->guest_phys_fault_addr);  
     } else {
-        monitor_printf("Error: failed to read guest_phys_fault_addr\n");
+        error_printf("Error: failed to read guest_phys_fault_addr\n");
         goto end;
     }
 
@@ -613,7 +613,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "priv_ver %lx", &env->priv_ver) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->priv_ver);  
     } else {
-        monitor_printf("Error: failed to read priv_ver\n");
+        error_printf("Error: failed to read priv_ver\n");
         goto end;
     }
 
@@ -621,7 +621,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "vext_ver %lx", &env->vext_ver) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->vext_ver);  
     } else {
-        monitor_printf("Error: failed to read vext_ver\n");
+        error_printf("Error: failed to read vext_ver\n");
         goto end;
     }
 
@@ -629,7 +629,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "misa %lx", &env->misa) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->misa);  
     } else {
-        monitor_printf("Error: failed to read misa\n");
+        error_printf("Error: failed to read misa\n");
         goto end;
     }
 
@@ -637,7 +637,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "misa_mask %lx", &env->misa_mask) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->misa_mask);  
     } else {
-        monitor_printf("Error: failed to read misa_mask\n");
+        error_printf("Error: failed to read misa_mask\n");
         goto end;
     }
 
@@ -645,7 +645,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "features %x", &env->features) == 1) {
         fprintf(out, " %s %x\n", str_line, env->features);  
     } else {
-        monitor_printf("Error: failed to read features\n");
+        error_printf("Error: failed to read features\n");
         goto end;
     }
 
@@ -653,7 +653,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "priv %lx", &env->priv) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->priv);  
     } else {
-        monitor_printf("Error: failed to read priv\n");
+        error_printf("Error: failed to read priv\n");
         goto end;
     }
 
@@ -661,7 +661,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "virt %lx", &env->virt) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->virt);  
     } else {
-        monitor_printf("Error: failed to read virt\n");
+        error_printf("Error: failed to read virt\n");
         goto end;
     }
 
@@ -669,7 +669,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "resetvec %lx", &env->resetvec) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->resetvec);  
     } else {
-        monitor_printf("Error: failed to read resetvec\n");
+        error_printf("Error: failed to read resetvec\n");
         goto end;
     }
 
@@ -677,7 +677,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "scounteren %lx", &env->scounteren) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->scounteren);  
     } else {
-        monitor_printf("Error: failed to read scounteren\n");
+        error_printf("Error: failed to read scounteren\n");
         goto end;
     }
 
@@ -685,7 +685,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "mcounteren %lx", &env->mcounteren) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mcounteren);  
     } else {
-        monitor_printf("Error: failed to read mcounteren\n");
+        error_printf("Error: failed to read mcounteren\n");
         goto end;
     }
 
@@ -693,7 +693,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "mfromhost %lx", &env->mfromhost) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mfromhost);  
     } else {
-        monitor_printf("Error: failed to read mfromhost\n");
+        error_printf("Error: failed to read mfromhost\n");
         goto end;
     }
 
@@ -701,7 +701,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "mtohost %lx", &env->mtohost) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->mtohost);  
     } else {
-        monitor_printf("Error: failed to read mtohost\n");
+        error_printf("Error: failed to read mtohost\n");
         goto end;
     }
 
@@ -709,7 +709,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
     if (sscanf(str_line, "timecmp %lx", &env->timecmp) == 1) {
         fprintf(out, " %s %lx\n", str_line, env->timecmp);  
     } else {
-        monitor_printf("Error: failed to read timecmp\n");
+        error_printf("Error: failed to read timecmp\n");
         goto end;
     }
 
@@ -718,7 +718,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
         if (sscanf(str_line, "mstatush %lx", &env->mstatus) == 1) {
             fprintf(out, " %s %lx\n", str_line, env->mstatus);  
         } else {
-            monitor_printf("Error: failed to read mstatush\n");
+            error_printf("Error: failed to read mstatush\n");
             goto end;
         }
     }
@@ -728,7 +728,7 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
         if (sscanf(str_line, "%s %lx", reg, &env->gpr[i]) == 2) {
             fprintf(out, " %s %lx\n", reg, env->gpr[i]);  
         } else {
-            monitor_printf("Error: failed to read gpr[%d]\n", i);
+            error_printf("Error: failed to read gpr[%d]\n", i);
             goto end;
         }
     }
@@ -738,43 +738,43 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
         if (sscanf(str_line, "%s %lx", reg, &env->fpr[i]) == 2) {
             fprintf(out, " %s %lx\n", reg, env->fpr[i]);  
         } else {
-            monitor_printf("Error: failed to read fpr[%d]\n", i);
+            error_printf("Error: failed to read fpr[%d]\n", i);
             goto end;
         }
     }
 
+    if (cpu->cfg.pmp) {
+        int j;
+        target_ulong tmp;
+        memset(&env->pmp_state, 0, sizeof(env->pmp_state));
 
+        for(int i = 0; i < MAX_RISCV_PMPS; ++i){
+            flag = fgets(str_line, FILE_LINE_MAX, fp);
+            if (sscanf(str_line, "pmpaddr_%d %lx", &j, &tmp) == 2) {
+                pmpaddr_csr_write(env, i, tmp);
+                fprintf(out, "pmpaddr_%d %lx\n", j, pmpaddr_csr_read(env, i));  
+            } else {
+                error_printf("Error: failed to read pmpaddr[%d]\n", i);
+                goto end;
+            }
+        }
 
+        for(int i = 0; i < MAX_RISCV_PMPS/4; ++i){
+            flag = fgets(str_line, FILE_LINE_MAX, fp);
+            if (sscanf(str_line, "pmpcfg_%d %lx", &j, &tmp) == 2) {
+                pmpcfg_csr_write(env, i, tmp);
+                fprintf(out, "pmpcfg_%d %lx\n", j, pmpcfg_csr_read(env, i));  
+            } else {
+                error_printf("Error: failed to read pmpcfg[%d]\n", i);
+                goto end;
+            }
+        }
 
-//    for(i =0; i< MAX_RISCV_PMPS; ++i){
-//             qemu_fprintf(f, "%s_%d " TARGET_FMT_lx "\n", "pmpaddr", i, pmpaddr_csr_read(env, i));
-//         }
-//         for(i =0; i< MAX_RISCV_PMPS/4; ++i){
-//             qemu_fprintf(f, "%s_%d " TARGET_FMT_lx "\n", "pmpcfg", i, pmpcfg_csr_read(env, i));
-//         }
-
-
-
-//     if (cpu->cfg.pmp) {
-//         for(int i =0; i< MAX_RISCV_PMPS; ++i){
-//             flag = fgets(str_line, FILE_LINE_MAX, fp);
-//             if (sscanf(str_line, "pmpaddr_%d %lx", i, ) == 2) {
-//                 fprintf(out, "pmpaddr_%d %lx\n", i, pmpaddr_csr_read(env, i));  
-//             } else {
-//                 monitor_printf("Error: failed to read pmpaddr[%d]\n", i);
-//                 goto end;
-//             }
-//         }
-//         for(int i =0; i< MAX_RISCV_PMPS/4; ++i){
-//             flag = fgets(str_line, FILE_LINE_MAX, fp);
-//             if (sscanf(str_line, "pmpcfg_%d %lx", i, &pmpcfg_csr_read(env, i)) == 2) {
-//                 fprintf(out, "pmpcfg_%d %lx\n", i, pmpcfg_csr_read(env, i));  
-//             } else {
-//                 monitor_printf("Error: failed to read pmpcfg[%d]\n", i);
-//                 goto end;
-//             }
-//         }
-//     }
+        for (int i = 0; i < MAX_RISCV_PMPS; i++) {
+            pmp_update_rule_addr(env, i);
+        }
+        pmp_update_rule_nums(env);
+    }
 
 
 end:
