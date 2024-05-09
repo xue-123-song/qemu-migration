@@ -422,8 +422,8 @@ ERST
 
     {
         .name       = "reset",
-        .args_type  = "vcpu:i",
-        .params     = "vcpu",
+        .args_type  = "cpustate_all:-a,vcpu:i?",
+        .params     = "[-a|vcpu]",
         .help       = "reset a vcpu",
         .cmd        = hmp_reset_vcpu,
     },
@@ -435,8 +435,8 @@ ERST
 
     {
         .name       = "pause",
-        .args_type  = "vcpu:i",
-        .params     = "vcpu",
+        .args_type  = "cpustate_all:-a,vcpu:i?",
+        .params     = "[-a|vcpu]",
         .help       = "pause a vcpu",
         .cmd        = hmp_pause_vcpu,
     },
@@ -449,8 +449,8 @@ ERST
 
     {
         .name       = "resume",
-        .args_type  = "vcpu:i",
-        .params     = "vcpu",
+        .args_type  = "cpustate_all:-a,vcpu:i?",
+        .params     = "[-a|vcpu]",
         .help       = "resume a vcpu",
         .cmd        = hmp_resume_vcpu,
     },
@@ -464,8 +464,8 @@ ERST
 
     {
         .name       = "dumpcpu",
-        .args_type  = "vcpu:i",
-        .params     = "[vcpu]",
+        .args_type  = "cpustate_all:-a,vcpu:i?",
+        .params     = "[-a|vcpu]",
         .help       = "dump cpu information",
         .cmd        = hmp_dump_vcpu,
     },

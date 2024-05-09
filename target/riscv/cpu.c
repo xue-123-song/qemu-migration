@@ -326,7 +326,18 @@ static void riscv_cpu_dump_state(CPUState *cs, FILE *f, int flags)
 
 #ifdef DUMP_CPU_MIGRATE
     FILE *fp;
-    fp = fopen("/tmp/qemu-cpu.txt", "w");
+    int index = cs->cpu_index;
+    char filename[100] = "/tmp/qemu-cpu-";
+    char index_str[10];
+
+    sprintf(index_str, "%d", index);
+    strcat(filename, index_str);
+    strcat(filename, ".txt");
+    fp = fopen(filename, "w");
+    if (fp == NULL) {
+        error_printf("Error: failed to open file:%s\n", filename);
+        return;
+    }
 
     fprintf(fp, " %s " TARGET_FMT_lx "\n", "pc      ", env->pc);
     fprintf(fp, " %s " TARGET_FMT_lx "\n", "mhartid ", env->mhartid);
@@ -431,21 +442,17 @@ static void riscv_cpu_load_state(CPUState *cs, const char *filename)
 //     set_default_nan_mode(1, &env->fp_status);
 
     fp = fopen(filename, "r");
-    out = fopen("/home/x/out-test.txt", "w");
-
+    out = fopen("/home/xst/Desktop/out-test.txt", "w");
     if (fp == NULL) {
         error_printf("Error: failed to open file\n");
         return;
     }
 
-    target_ulong tmp;
-
     flag = fgets(str_line, FILE_LINE_MAX, fp);
     if (flag == NULL) {
         error_printf("Error: fgets error\n");
     } 
-    if (sscanf(str_line, "%s %lx", reg, &tmp) == 2) {
-        env->pc = tmp;
+    if (sscanf(str_line, "%s %lx", reg, &env->pc) == 2) {
         fprintf(out, "%s %lx\n", str_line, env->pc);  
     } else {
         error_printf("Error: failed to read pc\n");

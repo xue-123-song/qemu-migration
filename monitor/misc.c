@@ -347,83 +347,116 @@ static void hmp_load_vcpu(Monitor *mon, const QDict *qdict)
 
 static void hmp_reset_vcpu(Monitor *mon, const QDict *qdict)
 {
+    bool all_cpus = qdict_get_try_bool(qdict, "cpustate_all", false);
     int vcpu = qdict_get_try_int(qdict, "vcpu", -1);
     CPUState *cs;
 
-    cs = vcpu >= 0 ? qemu_get_cpu(vcpu) : mon_get_cpu(mon);
-
-    if (!cs) {
-        if (vcpu >= 0) {
-            monitor_printf(mon, "CPU#%d not available\n", vcpu);
-        } else {
-            monitor_printf(mon, "No CPU available\n");
+    if (all_cpus) {
+        CPU_FOREACH(cs) {
+            monitor_printf(mon, "\nCPU#%d\n", cs->cpu_index);
+            cpu_reset(cs);
         }
-        return;
-    }
+    } else {
+        cs = vcpu >= 0 ? qemu_get_cpu(vcpu) : mon_get_cpu(mon);
 
-    monitor_printf(mon, "\nCPU#%d\n", cs->cpu_index);
-    cpu_reset(cs);
-}
-
-static void hmp_dump_vcpu(Monitor *mon, const QDict *qdict)
-{
-    int vcpu = qdict_get_try_int(qdict, "vcpu", -1);
-    CPUState *cs;
-
-    cs = vcpu >= 0 ? qemu_get_cpu(vcpu) : mon_get_cpu(mon);
-
-    if (!cs) {
-        if (vcpu >= 0) {
+        if (!cs) {
+            if (vcpu >= 0) {
                 monitor_printf(mon, "CPU#%d not available\n", vcpu);
             } else {
                 monitor_printf(mon, "No CPU available\n");
             }
-        return;
-    }
+            return;
+        }
 
-    monitor_printf(mon, "\nCPU#%d\n", cs->cpu_index);
-    cpu_dump_state(cs, NULL, CPU_DUMP_FPU);
-    pause_vcpu(cs);
+        monitor_printf(mon, "\nCPU#%d\n", cs->cpu_index);
+        cpu_reset(cs);
+    }
+}
+
+static void hmp_dump_vcpu(Monitor *mon, const QDict *qdict)
+{
+    bool all_cpus = qdict_get_try_bool(qdict, "cpustate_all", false);
+    int vcpu = qdict_get_try_int(qdict, "vcpu", -1);
+    CPUState *cs;
+
+    if (all_cpus) {
+        CPU_FOREACH(cs) {
+            monitor_printf(mon, "\nCPU#%d\n", cs->cpu_index);
+            pause_vcpu(cs);
+            cpu_dump_state(cs, NULL, CPU_DUMP_FPU);
+        }
+    } else {
+        cs = vcpu >= 0 ? qemu_get_cpu(vcpu) : mon_get_cpu(mon);
+
+        if (!cs) {
+            if (vcpu >= 0) {
+                monitor_printf(mon, "CPU#%d not available\n", vcpu);
+            } else {
+                monitor_printf(mon, "No CPU available\n");
+            }
+            return;
+        }
+        
+        monitor_printf(mon, "\nCPU#%d\n", cs->cpu_index);
+        pause_vcpu(cs);
+        cpu_dump_state(cs, NULL, CPU_DUMP_FPU);
+    }
 }
 
 static void hmp_pause_vcpu(Monitor *mon, const QDict *qdict)
 {
+    bool all_cpus = qdict_get_try_bool(qdict, "cpustate_all", false);
     int vcpu =  qdict_get_try_int(qdict, "vcpu", -1);
     CPUState *cs;
 
-    cs = vcpu >= 0 ? qemu_get_cpu(vcpu) : mon_get_cpu(mon);
-
-    if (!cs) {
-        if (vcpu >= 0) {
-            monitor_printf(mon, "CPU#%d not available\n", vcpu);
-        } else {
-            monitor_printf(mon, "No CPU available\n");
+    if (all_cpus) {
+        CPU_FOREACH(cs) {
+            monitor_printf(mon, "\nCPU#%d\n", cs->cpu_index);
+            pause_vcpu(cs);
         }
-        return;
-    }
+    } else {
+        cs = vcpu >= 0 ? qemu_get_cpu(vcpu) : mon_get_cpu(mon);
 
-    monitor_printf(mon, "\nCPU#%d\n", cs->cpu_index);
-    pause_vcpu(cs);
+        if (!cs) {
+            if (vcpu >= 0) {
+                monitor_printf(mon, "CPU#%d not available\n", vcpu);
+            } else {
+                monitor_printf(mon, "No CPU available\n");
+            }
+            return;
+        }
+
+        monitor_printf(mon, "\nCPU#%d\n", cs->cpu_index);
+        pause_vcpu(cs);
+    } 
 }
 
 static void hmp_resume_vcpu(Monitor *mon, const QDict *qdict)
 {
-    int vcpu =  qdict_get_try_int(qdict, "vcpu", -1);
+    bool all_cpus = qdict_get_try_bool(qdict, "cpustate_all", false);
+    int vcpu = qdict_get_try_int(qdict, "vcpu", -1);
     CPUState *cs;
 
-    cs = vcpu >= 0 ? qemu_get_cpu(vcpu) : mon_get_cpu(mon);
-
-    if (!cs) {
-        if (vcpu >= 0) {
-            monitor_printf(mon, "CPU#%d not available\n", vcpu);
-        } else {
-            monitor_printf(mon, "No CPU available\n");
+    if (all_cpus) {
+        CPU_FOREACH(cs) {
+            monitor_printf(mon, "\nCPU#%d\n", cs->cpu_index);
+            resume_vcpu(cs);
         }
-        return;
-    }
+    } else {
+        cs = vcpu >= 0 ? qemu_get_cpu(vcpu) : mon_get_cpu(mon);
 
-    monitor_printf(mon, "\nCPU#%d\n", cs->cpu_index);
-    resume_vcpu(cs);
+        if (!cs) {
+            if (vcpu >= 0) {
+                monitor_printf(mon, "CPU#%d not available\n", vcpu);
+            } else {
+                monitor_printf(mon, "No CPU available\n");
+            }
+            return;
+        }
+
+        monitor_printf(mon, "\nCPU#%d\n", cs->cpu_index);
+        resume_vcpu(cs);
+    }
 }
 
 #ifdef CONFIG_TCG
