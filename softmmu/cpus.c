@@ -831,10 +831,6 @@ void pause_vcpu(CPUState *cpu)
         cpu->stop = true;
         qemu_cpu_kick(cpu);
     }
-
-    /* We need to drop the replay_lock so any vCPU threads woken up
-     * can finish their replay tasks
-     */
     replay_mutex_unlock();
 
     while (!vcpu_paused(cpu)) {
